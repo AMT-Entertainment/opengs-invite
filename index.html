@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="description" content="Join a game server via OpenGS">
+<meta property="og:title" content="OpenGS Invite">
+<meta property="og:description" content="You're invited to join a game server!">
+<meta property="og:image" content="https://opengs.app/og-image.png">
+<meta property="og:type" content="website">
+<title>OpenGS Invite</title>
+<style>
+  :root { --accent: #6366f1; --accent-dim: #4f46e5; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0d0d0d;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .banner {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .banner h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    letter-spacing: 0.02em;
+  }
+  .content {
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px 16px;
+    flex: 1;
+  }
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .invitation-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .server-name {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .server-meta {
+    font-size: 0.9rem;
+    color: #aaa;
+  }
+  .address-card {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #2a2a2a;
+  }
+  .address-text {
+    font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
+    font-size: 1.1rem;
+    word-break: break-all;
+    user-select: all;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    color: #e0e0e0;
+  }
+  .btn-copy {
+    width: 100%;
+    height: 56px;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-copy:active { transform: scale(0.98); }
+  .btn-copy.copied { background: #22c55e; }
+  .message-box {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 20px;
+    border-left: 4px solid var(--accent);
+  }
+  .message-box blockquote {
+    font-style: italic;
+    color: #ccc;
+    line-height: 1.6;
+    quotes: "\201C" "\201D";
+  }
+  .message-box blockquote::before {
+    content: open-quote;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 0;
+    vertical-align: -0.4em;
+    margin-right: 4px;
+  }
+  .message-box blockquote::after {
+    content: close-quote;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 0;
+    vertical-align: -0.2em;
+    margin-left: 4px;
+  }
+  .steps { list-style: none; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 36px;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #ccc;
+    border-bottom: 1px solid #1f1f1f;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hidden { display: none !important; }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #22c55e;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .footer {
+    text-align: center;
+    padding: 24px 16px;
+    font-size: 0.8rem;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<div class="banner" id="banner">
+  <h1 id="gameName">OpenGS</h1>
+</div>
+
+<div class="content">
+  <div class="section">
+    <div class="invitation-heading">You're invited!</div>
+    <div class="server-name" id="serverName">Server</div>
+    <div class="server-meta">
+      <span id="versionDisplay"></span><span id="loaderDisplay"></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Server Address</div>
+    <div class="address-card">
+      <div class="address-text" id="addressText">0.0.0.0:00000</div>
+      <button class="btn-copy" id="copyBtn">📋 Copy Address</button>
+    </div>
+  </div>
+
+  <div class="section hidden" id="messageSection">
+    <div class="section-title">Message</div>
+    <div class="message-box">
+      <blockquote id="messageText"></blockquote>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">How to Join</div>
+    <ol class="steps" id="stepsList"></ol>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied!</div>
+
+<div class="footer">Made with OpenGS</div>
+
+<script>
+(function() {
+  const params = new URLSearchParams(location.search);
+  const game   = params.get('game') || '';
+  const name   = params.get('name') || 'Server';
+  const addr   = params.get('addr') || '0.0.0.0:00000';
+  const loader = params.get('loader') || '';
+  const ver    = params.get('ver') || '';
+  const msg    = params.get('msg') || '';
+
+  const gradients = {
+    'mc-java':    'linear-gradient(135deg, #1a3a1a 0%, #2d5d2d 50%, #44aa44 100%)',
+    'mc-bedrock': 'linear-gradient(135deg, #1a4a3a 0%, #2d8f5c 50%, #3aa876 100%)',
+    'terraria':   'linear-gradient(135deg, #5C4010 0%, #8B6914 50%, #d4a017 100%)'
+  };
+
+  const accentColors = {
+    'mc-java':    '#44aa44',
+    'mc-bedrock': '#3aa876',
+    'terraria':   '#d4a017'
+  };
+
+  const displayNames = {
+    'mc-java':    'Minecraft Java',
+    'mc-bedrock': 'Minecraft Bedrock',
+    'terraria':   'Terraria'
+  };
+
+  const joinSteps = {
+    'mc-java':    ['Open Minecraft Java', 'Multiplayer', 'Add Server', 'Paste the address', 'Join'],
+    'mc-bedrock': ['Open Minecraft Bedrock', 'Play', 'Servers', 'Add Server', 'Paste the address', 'Join'],
+    'terraria':   ['Open Terraria', 'Multiplayer', 'Join via IP', 'Enter the address', 'Accept']
+  };
+
+  const gradient = gradients[game] || 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+  const accent   = accentColors[game] || '#6366f1';
+  const display  = displayNames[game] || 'OpenGS';
+  const steps    = joinSteps[game] || joinSteps['mc-java'];
+
+  document.documentElement.style.setProperty('--accent', accent);
+  document.documentElement.style.setProperty('--accent-dim', accent);
+
+  document.getElementById('banner').style.background = gradient;
+  document.getElementById('gameName').textContent = display;
+  document.getElementById('serverName').textContent = name;
+  document.getElementById('addressText').textContent = addr;
+
+  const verEl = document.getElementById('versionDisplay');
+  const loaderEl = document.getElementById('loaderDisplay');
+  if (ver) {
+    verEl.textContent = ver;
+  }
+  if (loader) {
+    loaderEl.textContent = loader ? ' \u00b7 ' + loader : '';
+  }
+
+  if (msg) {
+    document.getElementById('messageSection').classList.remove('hidden');
+    document.getElementById('messageText').textContent = msg;
+  }
+
+  var stepsHtml = '';
+  for (var i = 0; i < steps.length; i++) {
+    stepsHtml += '<li>' + steps[i] + '</li>';
+  }
+  document.getElementById('stepsList').innerHTML = stepsHtml;
+
+  var copyBtn = document.getElementById('copyBtn');
+  var toast = document.getElementById('toast');
+  var toastTimer = null;
+
+  copyBtn.addEventListener('click', function() {
+    navigator.clipboard.writeText(addr).then(function() {
+      copyBtn.textContent = '✅ Copied!';
+      copyBtn.classList.add('copied');
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() {
+        toast.classList.remove('show');
+        copyBtn.textContent = '\ud83d\udccb Copy Address';
+        copyBtn.classList.remove('copied');
+        toastTimer = null;
+      }, 2000);
+    }).catch(function() {
+      var ta = document.createElement('textarea');
+      ta.value = addr;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      copyBtn.textContent = '\u2705 Copied!';
+      copyBtn.classList.add('copied');
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() {
+        toast.classList.remove('show');
+        copyBtn.textContent = '\ud83d\udccb Copy Address';
+        copyBtn.classList.remove('copied');
+        toastTimer = null;
+      }, 2000);
+    });
+  });
+})();
+</script>
+</body>
+</html>
